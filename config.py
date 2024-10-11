@@ -1,8 +1,9 @@
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Collection, Iterable
 
 from dataclass_fallback_field import FallbackFieldMixin
-from env_config_keys import EnvConfigKey, getEnvValue
+from env_config_keys import EnvConfigKey, get_env_value
 from exc import MissingConfigurationException
 
 
@@ -17,20 +18,25 @@ class MqttConfig:
 
     @property
     def host(self) -> str:
-        return f"mqtt://{self.ip}:{self.host}"
+        return f"mqtt://{self.ip}:{self.port}"
 
 @dataclass
 class Config(FallbackFieldMixin):
-    msg_queue_size: int = field(init = False)
-    _msg_queue_size: str = field(default_factory = getEnvValue(EnvConfigKey.MSG_QUEUE_SIZE))
+    # TODO: optional config?
+    
+    log_file_path: Path = field(init = False)
+    _log_file_path: str = field(default_factory = get_env_value(EnvConfigKey.LOG_FILE_PATH), repr = False)
 
-    mqtt_username: str = field(default_factory = getEnvValue(EnvConfigKey.MQTT_USERNAME))
-    mqtt_password: str = field(default_factory = getEnvValue(EnvConfigKey.MQTT_PASSWORD), repr = False)
-    mqtt_ip: str = field(default_factory = getEnvValue(EnvConfigKey.MQTT_IP))
+    msg_queue_size: int = field(init = False)
+    _msg_queue_size: str = field(default_factory = get_env_value(EnvConfigKey.MSG_QUEUE_SIZE), repr = False)
+
+    mqtt_username: str = field(default_factory = get_env_value(EnvConfigKey.MQTT_USERNAME))
+    mqtt_password: str = field(default_factory = get_env_value(EnvConfigKey.MQTT_PASSWORD), repr = False)
+    mqtt_ip: str = field(default_factory = get_env_value(EnvConfigKey.MQTT_IP))
     mqtt_port: int = field(init = False)
-    _mqtt_port: str = field(default_factory = getEnvValue(EnvConfigKey.MQTT_PORT))
+    _mqtt_port: str = field(default_factory = get_env_value(EnvConfigKey.MQTT_PORT), repr = False)
     mqtt_keepalive: int = field(init = False)
-    _mqtt_keepalive: str = field(default_factory = getEnvValue(EnvConfigKey.MQTT_KEEPALIVE))
+    _mqtt_keepalive: str = field(default_factory = get_env_value(EnvConfigKey.MQTT_KEEPALIVE), repr = False)
 
     
     def _getParametersWithMissingValue(self, fields: Iterable[str]) -> Collection[str]:

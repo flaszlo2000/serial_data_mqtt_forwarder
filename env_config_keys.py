@@ -4,15 +4,17 @@ from typing import Callable
 
 
 class EnvConfigKey(str, Enum):
+    LOG_FILE_PATH = "log_file_path"
+
     MSG_QUEUE_SIZE = "msg_queue_size"
-    
+
     MQTT_USERNAME = "mqtt_username"
     MQTT_PASSWORD = "mqtt_password"
     MQTT_IP = "mqtt_ip"
     MQTT_PORT = "mqtt_port"
     MQTT_KEEPALIVE = "mqtt_keepalive"
 
-def getEnvValue(env_key: EnvConfigKey) -> Callable[[], str]:
+def get_env_value(env_key: EnvConfigKey) -> Callable[[], str]:
     """
     Tries to get the given env config key, it it does not exist then it gives back an empty string.
     It's designed to use with dataclass field's default_factory to make those a bit nicer

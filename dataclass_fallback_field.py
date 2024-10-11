@@ -20,11 +20,11 @@ class FallbackFieldMixin:
     @dataclass
     class Person(FallbackFieldMixin):
         age: int = field(init = False)
-        _age: str = field(default_factory = input)   
+        _age: str = field(default_factory = input, repr = False)
 
-        #birth_year won't be set and neither a public differing_birth_year won't be created
+        #birth_year won't be set and neither a public differing_birth_year will be created
         birth_year: int = field(init = False)
-        _differing_birth_year: str = ield(default_factory = input)   
+        _differing_birth_year: str = field(default_factory = input, repr = False)   
     """
 
     @staticmethod
@@ -36,7 +36,7 @@ class FallbackFieldMixin:
 
         return converted_value
 
-    def _get_fallback_fields(self) -> Dict[str, Any]:
+    def _getFallbackFields(self) -> Dict[str, Any]:
         "Searches the dataclass for correct fallback fields and returns the non-protected field name with the correctly converted value"
         result: Dict[str, Any] = dict()
 
@@ -62,10 +62,10 @@ class FallbackFieldMixin:
 
         return result
 
-    def _setup_fallback_field_pairs(self, fields: Dict[str, Any]) -> None:
+    def _setupFallbackFieldPairs(self) -> None:
         "Sets fields to the instance based on the given fields dict"
-        for name, value in fields.items():
+        for name, value in self._getFallbackFields().items():
             setattr(self, name, value)
 
     def __post_init__(self) -> None:
-        self._setup_fallback_field_pairs(self._get_fallback_fields())
+        self._setupFallbackFieldPairs()
