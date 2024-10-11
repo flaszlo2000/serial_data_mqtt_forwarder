@@ -1,5 +1,5 @@
 class IncorrectFallbackTypeException(Exception):
     ...
 
-class EmptyConfigValueException(Exception):
+class MissingConfigurationException(Exception):
     ...

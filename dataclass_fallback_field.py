@@ -55,6 +55,9 @@ class FallbackFieldMixin:
                 t: Type[Any] = cast(Type[Any], unprotected_field.type) # yolo
                 original_value = self.__getattribute__(protected_field_name)
 
+                if isinstance(original_value, str) and original_value == "":
+                    raise IncorrectFallbackTypeException(f"*{unprotected_field_name}*'s value is missing!")
+
                 result[unprotected_field_name] = self._try_to_convert(protected_field_name, original_value, t)
 
         return result
