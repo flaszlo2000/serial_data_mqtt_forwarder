@@ -3,3 +3,6 @@ class IncorrectFallbackTypeException(Exception):
 
 class MissingConfigurationException(Exception):
     ...
+
+class DataForwarderConnectionException(Exception):
+    ...

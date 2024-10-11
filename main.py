@@ -5,8 +5,9 @@ from typing import Final
 
 from dotenv import load_dotenv
 
-from config import Config
+from config import Config, MqttConfig
 from data_forwarding import DataForwarderBase, DataInputDTO
+from exc import DataForwarderConnectionException
 from mqtt_handler import MqttDataForwarder, MqttDataInputDTO
 
 
@@ -28,12 +29,19 @@ def _gracefulExit(stop_event: Event) -> None:
 
 def main() -> None:
     config: Final[Config] = Config()
+    mqtt_config: Final[MqttConfig] = config.getMqttConfig()
+    
     message_queue: Queue[MqttDataInputDTO] = Queue(maxsize = config.msg_queue_size)
     stop_event = Event()
-    mqtt_data_forwarder = MqttDataForwarder(config.getMqttConfig())
+    
+    mqtt_data_forwarder = MqttDataForwarder(mqtt_config)
+    successful_connection = mqtt_data_forwarder.connect()
 
+    if not successful_connection:
+        raise DataForwarderConnectionException(f"Couldn't connect to {mqtt_config.host}")
+
+    # TODO: log successful connection
     mqtt_handler_thread = Thread(target = data_forwarder_thread, args = [mqtt_data_forwarder, message_queue, stop_event])
-
 
     signal(SIGINT, lambda _, __: _gracefulExit(stop_event))
     mqtt_handler_thread.start()

@@ -1,14 +1,10 @@
 from dataclasses import dataclass, field
-from os import getenv
-from typing import Callable, Collection, Iterable
+from typing import Collection, Iterable
 
 from dataclass_fallback_field import FallbackFieldMixin
-from env_config_keys import EnvConfigKey
+from env_config_keys import EnvConfigKey, getEnvValue
 from exc import MissingConfigurationException
 
-
-def getEnvValue(env_key: EnvConfigKey) -> Callable[[], str]:
-    return lambda: getenv(env_key.value) or ""
 
 @dataclass
 class MqttConfig:
@@ -19,6 +15,9 @@ class MqttConfig:
     port: int
     keepalive: int
 
+    @property
+    def host(self) -> str:
+        return f"mqtt://{self.ip}:{self.host}"
 
 @dataclass
 class Config(FallbackFieldMixin):
@@ -34,14 +33,14 @@ class Config(FallbackFieldMixin):
     _mqtt_keepalive: str = field(default_factory = getEnvValue(EnvConfigKey.MQTT_KEEPALIVE))
 
     
-    def getParametersWithMissingValue(self, fields: Iterable[str]) -> Collection[str]:
+    def _getParametersWithMissingValue(self, fields: Iterable[str]) -> Collection[str]:
         return list(filter(lambda key: getattr(self, key) == "", fields))
 
     def __post_init__(self) -> None:
         super().__post_init__()
 
-        public_fields = filter(lambda key: not key.startswith("_"), self.__dict__)
-        parameters_with_missing_value = self.getParametersWithMissingValue(public_fields)
+        public_fields = filter(lambda key: not key.startswith("_"), self.__dict__) # this class uses FallbackFieldMixin so we only care about the public fields
+        parameters_with_missing_value = self._getParametersWithMissingValue(public_fields)
 
         if len(parameters_with_missing_value) > 0:
             raise MissingConfigurationException(f"{parameters_with_missing_value=}")
