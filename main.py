@@ -7,7 +7,7 @@ from typing import Any, Final, NoReturn, Optional
 from dotenv import load_dotenv
 
 from configs import Config, MqttConfig, SerialDeviceConfig
-from data_forwarding import DataForwarderBase, DataInputDTOProtocol
+from data_forwarding import T_DTO, DataForwarderBase
 from exc import DataForwarderConnectionException
 from logging_configurator import setup_logger
 from mqtt_data_forwarder import MqttDataForwarder, MqttDataInputDTO
@@ -19,8 +19,8 @@ def _graceful_exit(stop_event: Event, message_forwarder_thread: Thread) -> None:
     message_forwarder_thread.join()
 
 def data_forwarder_thread(
-    data_forwarder: DataForwarderBase[Any],
-    msg_queue: "Queue[DataInputDTOProtocol]",
+    data_forwarder: DataForwarderBase[T_DTO],
+    msg_queue: "Queue[T_DTO]",
     stop_event: Event,
     logger: Logger,
     *,
