@@ -10,7 +10,7 @@ from config import Config, MqttConfig
 from data_forwarding import DataForwarderBase, DataInputDTOProtocol
 from exc import DataForwarderConnectionException
 from logging_config import setup_logger
-from mqtt_handler import MqttDataForwarder, MqttDataInputDTO
+from mqtt_data_forwarder import MqttDataForwarder, MqttDataInputDTO
 
 
 def _graceful_exit(stop_event: Event, message_forwarder_thread: Thread) -> None:
