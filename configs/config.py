@@ -2,10 +2,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Collection, Iterable
 
+from configs.env_config_keys import EnvConfigKey, get_env_value
 from configs.mqtt_config import MqttConfig
 from configs.serial_device_config import SerialDeviceConfig
 from dataclass_fallback_field import FallbackFieldMixin
-from env_config_keys import EnvConfigKey, get_env_value
 from exc import MissingConfigurationException
 
 
@@ -47,5 +47,5 @@ class Config(FallbackFieldMixin):
     def getMqttConfig(self) -> MqttConfig:
         return MqttConfig(self.mqtt_username, self.mqtt_password, self.mqtt_ip, self.mqtt_port, self.mqtt_keepalive)
 
-    def serialDeviceConfig(self) -> SerialDeviceConfig:
+    def getSerialDeviceConfig(self) -> SerialDeviceConfig:
         return SerialDeviceConfig(self.serial_device_path, self.serial_device_baud_rate)

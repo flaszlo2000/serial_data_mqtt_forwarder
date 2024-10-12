@@ -6,7 +6,7 @@ from typing import Any, Final, NoReturn, Optional
 
 from dotenv import load_dotenv
 
-from configs.config import Config, MqttConfig
+from configs import Config, MqttConfig, SerialDeviceConfig
 from data_forwarding import DataForwarderBase, DataInputDTOProtocol
 from exc import DataForwarderConnectionException
 from logging_configurator import setup_logger
@@ -58,6 +58,7 @@ def connect_data_forwarder(data_forwarder: DataForwarderBase[Any], logger: Logge
 
 def main(config: Config, logger: Logger, stop_event: Event) -> None:
     mqtt_config: Final[MqttConfig] = config.getMqttConfig()
+    serial_device_config: Final[SerialDeviceConfig] = config.getSerialDeviceConfig()
     message_queue: Queue[MqttDataInputDTO] = Queue(maxsize = config.msg_queue_size)
     
     mqtt_data_forwarder = MqttDataForwarder(mqtt_config, logger)
