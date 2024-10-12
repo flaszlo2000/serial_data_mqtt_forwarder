@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from config import Config, MqttConfig
 from data_forwarding import DataForwarderBase, DataInputDTOProtocol
 from exc import DataForwarderConnectionException
-from loggin_handler import setup_logger
+from logging_config import setup_logger
 from mqtt_handler import MqttDataForwarder, MqttDataInputDTO
 
 
@@ -63,7 +63,10 @@ def main(config: Config, logger: Logger, stop_event: Event) -> None:
     mqtt_data_forwarder = MqttDataForwarder(mqtt_config, logger)
     connect_data_forwarder(mqtt_data_forwarder, logger, mqtt_config.host)
 
-    mqtt_handler_thread = Thread(target = data_forwarder_thread, args = [mqtt_data_forwarder, message_queue, stop_event])
+    mqtt_handler_thread = Thread(
+        target = data_forwarder_thread,
+        args = [mqtt_data_forwarder, message_queue, stop_event, logger]
+    )
 
     signal(SIGINT, lambda _, __: _graceful_exit(stop_event, mqtt_handler_thread))
     mqtt_handler_thread.start()

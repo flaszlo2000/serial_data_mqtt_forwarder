@@ -48,4 +48,7 @@ class MqttDataForwarder(DataForwarderBase[MqttDataInputDTO]):
     def send(self, data_dto: MqttDataInputDTO) -> bool:
         result = self._mqtt_client.publish(data_dto.topic, data_dto.data)
 
+        if not result.is_published():
+            self.logger.error(result.rc)
+
         return result.is_published()
