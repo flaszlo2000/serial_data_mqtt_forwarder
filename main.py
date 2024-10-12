@@ -6,10 +6,10 @@ from typing import Any, Final, NoReturn, Optional
 
 from dotenv import load_dotenv
 
-from config import Config, MqttConfig
+from configs.config import Config, MqttConfig
 from data_forwarding import DataForwarderBase, DataInputDTOProtocol
 from exc import DataForwarderConnectionException
-from logging_config import setup_logger
+from logging_configurator import setup_logger
 from mqtt_data_forwarder import MqttDataForwarder, MqttDataInputDTO
 
 

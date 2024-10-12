@@ -14,6 +14,9 @@ class EnvConfigKey(str, Enum):
     MQTT_PORT = "mqtt_port"
     MQTT_KEEPALIVE = "mqtt_keepalive"
 
+    SERIAL_DEVICE_PATH = "serial_device_path"
+    SERIAL_DEVICE_BAUD_RATE = "serial_device_baud_rate"
+
 def get_env_value(env_key: EnvConfigKey) -> Callable[[], str]:
     """
     Tries to get the given env config key, it it does not exist then it gives back an empty string.

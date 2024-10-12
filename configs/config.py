@@ -2,23 +2,12 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Collection, Iterable
 
+from configs.mqtt_config import MqttConfig
+from configs.serial_device_config import SerialDeviceConfig
 from dataclass_fallback_field import FallbackFieldMixin
 from env_config_keys import EnvConfigKey, get_env_value
 from exc import MissingConfigurationException
 
-
-@dataclass
-class MqttConfig:
-    username: str
-    password: str = field(repr = False)
-
-    ip: str
-    port: int
-    keepalive: int
-
-    @property
-    def host(self) -> str:
-        return f"mqtt://{self.ip}:{self.port}"
 
 @dataclass
 class Config(FallbackFieldMixin):
@@ -38,6 +27,10 @@ class Config(FallbackFieldMixin):
     mqtt_keepalive: int = field(init = False)
     _mqtt_keepalive: str = field(default_factory = get_env_value(EnvConfigKey.MQTT_KEEPALIVE), repr = False)
 
+    serial_device_path: Path = field(init = False)
+    _serial_device_path: str = field(default_factory = get_env_value(EnvConfigKey.SERIAL_DEVICE_PATH), repr = False)
+    serial_device_baud_rate: int = field(init = False)
+    _serial_device_baud_rate: str = field(default_factory = get_env_value(EnvConfigKey.SERIAL_DEVICE_BAUD_RATE), repr = False)
     
     def _getParametersWithMissingValue(self, fields: Iterable[str]) -> Collection[str]:
         return list(filter(lambda key: getattr(self, key) == "", fields))
@@ -53,3 +46,6 @@ class Config(FallbackFieldMixin):
 
     def getMqttConfig(self) -> MqttConfig:
         return MqttConfig(self.mqtt_username, self.mqtt_password, self.mqtt_ip, self.mqtt_port, self.mqtt_keepalive)
+
+    def serialDeviceConfig(self) -> SerialDeviceConfig:
+        return SerialDeviceConfig(self.serial_device_path, self.serial_device_baud_rate)

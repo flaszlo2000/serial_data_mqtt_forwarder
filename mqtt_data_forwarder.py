@@ -5,7 +5,7 @@ from typing import Final
 from paho.mqtt.client import Client
 from paho.mqtt.enums import CallbackAPIVersion, MQTTErrorCode
 
-from config import MqttConfig
+from configs.config import MqttConfig
 from data_forwarding import DataForwarderBase
 
 
