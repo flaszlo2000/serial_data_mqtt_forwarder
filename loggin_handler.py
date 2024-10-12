@@ -13,7 +13,7 @@ def get_configured_logger(out_file_path: Path, logger_name: str = __name__) -> l
         filename = out_file_path,
         format = "%(asctime)s: %(levelname)s : %(message)s",
         datefmt = "%Y.%m.%d %H:%M:%S",
-        level = logging.DEBUG
+        level = logging.INFO
     )
 
     return logger
@@ -27,6 +27,7 @@ def setup_logger(out_file_path: Optional[Path] = None) -> logging.Logger:
         out_file_path.touch()
 
         log_file_was_created = out_file_path.exists()
+        assert log_file_was_created
     
     logger = get_configured_logger(out_file_path)
 

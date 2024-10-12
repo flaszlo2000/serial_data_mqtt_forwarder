@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from logging import Logger
 from typing import Final
 
@@ -6,13 +6,19 @@ from paho.mqtt.client import Client
 from paho.mqtt.enums import CallbackAPIVersion, MQTTErrorCode
 
 from config import MqttConfig
-from data_forwarding import DataForwarderBase, DataInputDTO
+from data_forwarding import DataForwarderBase
 
 
 @dataclass
-class MqttDataInputDTO(DataInputDTO):
+class MqttDataInputDTO: # NOTE: must comply to DataInputDTOProtocol
     topic: str
     data: str
+
+    retries: int = field(default = 0, repr = False)
+    max_retries: int = field(default = 3, repr = False)
+
+    def increaseRetries(self, amount: int = 1) -> None:
+        self.retries += amount
 
 class MqttDataForwarder(DataForwarderBase[MqttDataInputDTO]):
     def __init__(self, mqtt_config: MqttConfig, logger: Logger) -> None:
@@ -30,8 +36,9 @@ class MqttDataForwarder(DataForwarderBase[MqttDataInputDTO]):
                 self.__mqtt_config.ip, self.__mqtt_config.port, self.__mqtt_config.keepalive
             )
         except OSError as exc:
-            if exc.errno == 101: # netwoek is unreachable
+            if exc.errno == 101: # network is unreachable
                 self.logger.error("Network is unreachable!")
+      
                 return False
             
             raise
@@ -42,4 +49,3 @@ class MqttDataForwarder(DataForwarderBase[MqttDataInputDTO]):
         result = self._mqtt_client.publish(data_dto.topic, data_dto.data)
 
         return result.is_published()
-

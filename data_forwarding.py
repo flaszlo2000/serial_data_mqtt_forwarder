@@ -1,11 +1,15 @@
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
+from typing import Generic, Protocol, TypeVar
 
 
-class DataInputDTO:
-    ...
+class DataInputDTOProtocol(Protocol):
+    retries: int
+    max_retries: int
 
-T_DTO = TypeVar("T_DTO", bound = DataInputDTO)
+    def increaseRetries(self, amount: int = 1) -> None:
+        ...
+
+T_DTO = TypeVar("T_DTO", bound = DataInputDTOProtocol)
 class DataForwarderBase(Generic[T_DTO], ABC):
     @abstractmethod
     def connect(self) -> bool:
