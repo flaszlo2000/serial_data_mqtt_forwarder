@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Collection, Iterable
 
 from configs.env_config_keys import EnvConfigKey, get_env_value
+from configs.esp_config import get_esp_config
 from configs.mqtt_config import MqttConfig
 from configs.serial_device_config import SerialDeviceConfig
 from dataclass_fallback_field import FallbackFieldMixin
@@ -27,6 +28,8 @@ class Config(FallbackFieldMixin):
     mqtt_keepalive: int = field(init = False)
     _mqtt_keepalive: str = field(default_factory = get_env_value(EnvConfigKey.MQTT_KEEPALIVE), repr = False)
 
+    serial_device_config_path: Path = field(init = False)
+    _serial_device_config_path: str = field(default_factory = get_env_value(EnvConfigKey.SERIAL_DEVICE_CONFIG_PATH), repr = False)
     serial_device_path: Path = field(init = False)
     _serial_device_path: str = field(default_factory = get_env_value(EnvConfigKey.SERIAL_DEVICE_PATH), repr = False)
     serial_device_baud_rate: int = field(init = False)
@@ -48,4 +51,8 @@ class Config(FallbackFieldMixin):
         return MqttConfig(self.mqtt_username, self.mqtt_password, self.mqtt_ip, self.mqtt_port, self.mqtt_keepalive)
 
     def getSerialDeviceConfig(self) -> SerialDeviceConfig:
-        return SerialDeviceConfig(self.serial_device_path, self.serial_device_baud_rate)
+        return SerialDeviceConfig(
+            self.serial_device_path,
+            get_esp_config(self.serial_device_config_path),
+            self.serial_device_baud_rate
+        )
