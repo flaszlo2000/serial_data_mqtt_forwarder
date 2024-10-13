@@ -1,4 +1,5 @@
-The purpose of this project is to solve one of my issues with Home Assistant where I have multiple devices on a Esp-Now network but I can't add those to Esp-Home because at this moment they are incompatible technologies.
+The purpose of this project is to solve one of my issues with Home Assistant where I have multiple devices on a Esp-Now network but I can't add those to Esp-Home because at this moment they are incompatible technologies.  
+Behaves like a smart serial to mqtt bridge with great configurability.
 
 The network looks something like this:  
 - (n amount of) Esp using Esp-now as worker device(s) ->  

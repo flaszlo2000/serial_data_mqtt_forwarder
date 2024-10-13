@@ -11,6 +11,7 @@ from data_forwarding import T_DTO, DataForwarderBase
 from exc import DataForwarderConnectionException
 from logging_configurator import setup_logger
 from mqtt_data_forwarder import MqttDataForwarder, MqttDataInputDTO
+from serial_listener import SerialDeviceHandler
 
 
 def _graceful_exit(stop_event: Event, message_forwarder_thread: Thread) -> None:
@@ -60,7 +61,8 @@ def main(config: Config, logger: Logger, stop_event: Event) -> None:
     mqtt_config: Final[MqttConfig] = config.getMqttConfig()
     serial_device_config: Final[SerialDeviceConfig] = config.getSerialDeviceConfig()
     message_queue: Queue[MqttDataInputDTO] = Queue(maxsize = config.msg_queue_size)
-    
+
+    serial_device_handler = SerialDeviceHandler(serial_device_config, message_queue, logger)
     mqtt_data_forwarder = MqttDataForwarder(mqtt_config, logger)
     connect_data_forwarder(mqtt_data_forwarder, logger, mqtt_config.host)
 
@@ -71,6 +73,7 @@ def main(config: Config, logger: Logger, stop_event: Event) -> None:
 
     signal(SIGINT, lambda _, __: _graceful_exit(stop_event, mqtt_handler_thread))
     mqtt_handler_thread.start()
+    serial_device_handler.start(stop_event)
 
     mqtt_handler_thread.join()
 
