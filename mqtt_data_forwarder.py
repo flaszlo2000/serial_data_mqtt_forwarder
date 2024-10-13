@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from json import JSONDecodeError
 from json import loads as json_loads
 from logging import Logger
 from typing import Any, Dict, Final, Optional
@@ -25,11 +26,11 @@ class MqttDataInputDTO: # NOTE: must comply to DataInputDTOProtocol
     def createFromString(cls, _input: str, logger: Logger) -> "Optional[MqttDataInputDTO]":
         "Creates an instance based on _onput, the expected input is a json with the same fields as this class' required fields"
         result: Optional[MqttDataInputDTO] = None
-        json: Dict[str, Any] = json_loads(_input)
 
         try:
+            json: Dict[str, Any] = json_loads(_input)
             result = cls(**json)
-        except TypeError as exc:
+        except (TypeError, JSONDecodeError) as exc:
             logger.exception(exc)
 
         return result
