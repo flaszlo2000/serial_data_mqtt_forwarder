@@ -3,6 +3,8 @@ from typing import Generic, Protocol, TypeVar
 
 
 class DataInputDTOProtocol(Protocol):
+    destination: str
+
     retries: int
     max_retries: int
 

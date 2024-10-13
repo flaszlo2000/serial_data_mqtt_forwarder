@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
+from json import loads as json_loads
 from logging import Logger
-from typing import Final
+from typing import Any, Dict, Final, Optional
 
 from paho.mqtt.client import Client
 from paho.mqtt.enums import CallbackAPIVersion, MQTTErrorCode
@@ -11,7 +12,7 @@ from data_forwarding import DataForwarderBase
 
 @dataclass
 class MqttDataInputDTO: # NOTE: must comply to DataInputDTOProtocol
-    topic: str
+    destination: str
     data: str
 
     retries: int = field(default = 0, repr = False)
@@ -19,6 +20,19 @@ class MqttDataInputDTO: # NOTE: must comply to DataInputDTOProtocol
 
     def increaseRetries(self, amount: int = 1) -> None:
         self.retries += amount
+
+    @classmethod
+    def createFromString(cls, _input: str, logger: Logger) -> "Optional[MqttDataInputDTO]":
+        "Creates an instance based on _onput, the expected input is a json with the same fields as this class' required fields"
+        result: Optional[MqttDataInputDTO] = None
+        json: Dict[str, Any] = json_loads(_input)
+
+        try:
+            result = cls(**json)
+        except TypeError as exc:
+            logger.exception(exc)
+
+        return result
 
 class MqttDataForwarder(DataForwarderBase[MqttDataInputDTO]):
     def __init__(self, mqtt_config: MqttConfig, logger: Logger) -> None:
@@ -46,7 +60,7 @@ class MqttDataForwarder(DataForwarderBase[MqttDataInputDTO]):
         return connection_status is MQTTErrorCode.MQTT_ERR_SUCCESS
 
     def send(self, data_dto: MqttDataInputDTO) -> bool:
-        result = self._mqtt_client.publish(data_dto.topic, data_dto.data)
+        result = self._mqtt_client.publish(data_dto.destination, data_dto.data)
 
         if not result.is_published():
             self.logger.error(result.rc)

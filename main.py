@@ -36,7 +36,9 @@ def data_forwarder_thread(
             message = msg_queue.get_nowait()
             sent = data_forwarder.send(message)
 
-            if not sent:
+            if sent:
+                logger.info(f"Message forwarded successfully to {message.destination}!")
+            else:
                 logger.warning(f"Message ({message}) couldn't be sent, retrying")
                 
                 if message.retries < message.max_retries:
@@ -62,7 +64,12 @@ def main(config: Config, logger: Logger, stop_event: Event) -> None:
     serial_device_config: Final[SerialDeviceConfig] = config.getSerialDeviceConfig()
     message_queue: Queue[MqttDataInputDTO] = Queue(maxsize = config.msg_queue_size)
 
-    serial_device_handler = SerialDeviceHandler(serial_device_config, message_queue, logger)
+    serial_device_handler = SerialDeviceHandler(
+        serial_device_config,
+        message_queue,
+        MqttDataInputDTO.createFromString,
+        logger
+    )
     mqtt_data_forwarder = MqttDataForwarder(mqtt_config, logger)
     connect_data_forwarder(mqtt_data_forwarder, logger, mqtt_config.host)
 
