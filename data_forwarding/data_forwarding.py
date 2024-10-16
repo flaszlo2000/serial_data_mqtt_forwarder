@@ -20,3 +20,8 @@ class DataForwarderBase(Generic[T_DTO], ABC):
     @abstractmethod
     def send(self, data_dto: T_DTO) -> bool:
         ...
+
+    @abstractmethod
+    def retySend(self, data_dto: T_DTO) -> None:
+        "Uses proper retry policy to try and send the data"
+        ...

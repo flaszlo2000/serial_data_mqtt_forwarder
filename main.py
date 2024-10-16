@@ -40,15 +40,8 @@ def data_forwarder_thread(
                 logger.info(f"Message forwarded successfully to {message.destination}!")
             else:
                 logger.warning(f"Message ({message}) couldn't be sent, retrying")
-                
-                if message.retries < message.max_retries:
-                    msg_queue.put(message) # TODO: use proper retry policy
-                    message.increaseRetries()
 
-                    continue
-                
-                if message.retries >= message.max_retries:
-                    logger.error(f"Message ({message}) couldn't be sent, dropping")
+                data_forwarder.retySend(message)
 
 def connect_data_forwarder(data_forwarder: DataForwarderBase[Any], logger: Logger, host: str) -> Optional[NoReturn]:
     "Tries to connect to the given data forwarder and properly logs the outcome"

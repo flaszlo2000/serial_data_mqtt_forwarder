@@ -67,3 +67,17 @@ class MqttDataForwarder(DataForwarderBase[MqttDataInputDTO]):
             self.logger.error(result.rc)
 
         return result.is_published()
+
+    def retySend(self, data_dto: MqttDataInputDTO) -> None:
+        # TODO
+
+        # if message.retries < message.max_retries:
+        #     msg_queue.put(message) # TODO: use proper retry policy
+        #     message.increaseRetries()
+
+        #     continue
+        
+        # if message.retries >= message.max_retries:
+        #     logger.error(f"Message ({message}) couldn't be sent, dropping")
+
+        ...
