@@ -7,10 +7,10 @@ from typing import Any, Final, NoReturn, Optional
 from dotenv import load_dotenv
 
 from configs import Config, MqttConfig, SerialDeviceConfig
-from data_forwarding import T_DTO, DataForwarderBase
+from data_forwarding import (T_DTO, DataForwarderBase, MqttDataForwarder,
+                             MqttDataInputDTO)
 from exc import DataForwarderConnectionException
 from logging_configurator import setup_logger
-from mqtt_data_forwarder import MqttDataForwarder, MqttDataInputDTO
 from serial_listener import SerialDeviceHandler
 
 

@@ -8,7 +8,7 @@ from typing import Callable, Final, Generator, Generic, Optional
 from serial import Serial
 
 from configs import SerialDeviceConfig
-from data_forwarding import T_DTO
+from data_forwarding.data_forwarding import T_DTO
 
 
 @dataclass

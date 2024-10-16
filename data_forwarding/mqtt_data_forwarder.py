@@ -8,7 +8,7 @@ from paho.mqtt.client import Client
 from paho.mqtt.enums import CallbackAPIVersion, MQTTErrorCode
 
 from configs.mqtt_config import MqttConfig
-from data_forwarding import DataForwarderBase
+from data_forwarding.data_forwarding import DataForwarderBase
 
 
 @dataclass
