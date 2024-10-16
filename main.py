@@ -64,7 +64,7 @@ def main(config: Config, logger: Logger, stop_event: Event) -> None:
     serial_device_config: Final[SerialDeviceConfig] = config.getSerialDeviceConfig()
     message_queue: Queue[MqttDataInputDTO] = Queue(maxsize = config.msg_queue_size)
 
-    serial_device_handler = SerialDeviceHandler(
+    serial_device_handler = SerialDeviceHandler[MqttDataInputDTO](
         serial_device_config,
         message_queue,
         MqttDataInputDTO.createFromString,
