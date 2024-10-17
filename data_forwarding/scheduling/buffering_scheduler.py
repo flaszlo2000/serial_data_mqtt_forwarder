@@ -19,12 +19,12 @@ class MqttBufferingScheduler(ConfiguredScheduler[T_DTO]):
         super().__init__(configs)
 
         # TODO: make this configurable from HA
-        # TODO: docstrings
 
         self.__topic_data_buffer: Dict[str, T_DTO] = data_buffer or dict()
         self.__named_timers: List[NamedTimer] = list()
 
     def getNamedTimer(self, topic: str) -> Optional[NamedTimer]:
+        "Returns the named timer based on the given topic, if it was not found, returns None"
         result: Optional[NamedTimer] = None
         
         for named_timer in self.__named_timers:
@@ -35,6 +35,7 @@ class MqttBufferingScheduler(ConfiguredScheduler[T_DTO]):
         return result
 
     def __handleCallback(self, topic: str, callback: Callable[[T_DTO], Any]) -> None:
+        "Removes the named_timer from the saved ones based on the given topic and calls callback"
         named_timer_for_topic = self.getNamedTimer(topic)
         
         if named_timer_for_topic is None:
@@ -46,19 +47,24 @@ class MqttBufferingScheduler(ConfiguredScheduler[T_DTO]):
         callback(data_to_send)
 
     def _hasTimerForTopic(self, topic: str) -> bool:
+        "Checks if the instance already has a timer for the given topic"
         return any(map(lambda named_timer: named_timer.name == topic, self.__named_timers))
 
-    def _getConfigForTopic(self, topic: str) -> TimedSchedulerConfiguration:
+    def _hasConfigForTopic(self, topic: str) -> bool:
+        "Checks if the instance has config for the given topic"
         ... # TODO
 
-    def _hasConfigForTopic(self, topic: str) -> bool:
+    def _getConfigForTopic(self, topic: str) -> TimedSchedulerConfiguration:
+        "Returns the configuration to the given topic"
         ... # TODO
 
     @staticmethod
     def minsToMillisecond(min: float) -> float:
+        "Converts minutes to milliseconds"
         return min * 60 * 1000
 
     def __addTimerForTopic(self, topic: str, callback: Callable[[T_DTO], Any]) -> None:
+        "Setups and adds a named timer to the named timers based on the given arguments"
         config_for_topic: Final[TimedSchedulerConfiguration] = self._getConfigForTopic(topic)
         
         named_timer = NamedTimer(
@@ -74,12 +80,14 @@ class MqttBufferingScheduler(ConfiguredScheduler[T_DTO]):
         self.__named_timers.append(named_timer)
 
     def __saveData(self, data: T_DTO) -> None:
+        "Saves the given data into the data buffer based on the data's destination"
         # NOTE: the reason to move this to a separate function is that, this way this can be overridden without changing any other logic
         # for instance: saving the last state, collecting all datas that the sensor sent and send it in bulk, etc.
 
         self.__topic_data_buffer[data.destination] = data
 
     def schedule(self, data: T_DTO, callback: Callable[[T_DTO], Any], *, send_first_value: bool = True) -> None:
+        "Schedules a callback with the given data"
         if not self._hasConfigForTopic(data.destination):
             raise SchedulerConfigException(f"Missing configuration for {data.destination}")
 

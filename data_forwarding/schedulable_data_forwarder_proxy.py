@@ -18,8 +18,18 @@ class SchedulableDataForwarderProxy(DataForwarderProxyBase[T_DTO]):
         self.configured_scheduler = configured_scheduler
         self.logger = logger
 
+    def __schedulerCallback(self, data_dto: T_DTO) -> None:
+        success = self.data_forwarder.send(data_dto)
+
+        if success:
+            self.logger.info(f"Successfully forwarder message from scheduler to {data_dto.destination}!")
+        else:
+            self.logger.warning(f"Message ({data_dto}) from scheduler could not be sent, retrying")
+
+            self.data_forwarder.retySend(data_dto)
+
     def send(self, data_dto: T_DTO) -> bool:
-        self.configured_scheduler.schedule(data_dto, self.data_forwarder.send)
+        self.configured_scheduler.schedule(data_dto, self.__schedulerCallback)
  
         self.logger.info("Data scheduled to be forwarded!")
         
