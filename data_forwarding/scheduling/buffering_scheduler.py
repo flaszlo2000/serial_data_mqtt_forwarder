@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from threading import Timer
-from typing import Any, Callable, Dict, Final, Iterable, List, Optional
+from typing import Any, Callable, Dict, Final, Iterable, List, Optional, cast
 
 from data_forwarding.data_forwarding import T_DTO
 from data_forwarding.scheduling import (ConfiguredScheduler,
@@ -50,13 +50,21 @@ class MqttBufferingScheduler(ConfiguredScheduler[T_DTO]):
         "Checks if the instance already has a timer for the given topic"
         return any(map(lambda named_timer: named_timer.name == topic, self.__named_timers))
 
+    def _getConfigForTopic(self, topic: str) -> Optional[TimedSchedulerConfiguration]:
+        "Returns the configuration to the given topic"
+        result: Optional[TimedSchedulerConfiguration] = None
+        
+        for config in cast(Iterable[TimedSchedulerConfiguration], self.configs):
+            if config.topic == topic:
+                result = config
+                break
+        
+        return result
+
     def _hasConfigForTopic(self, topic: str) -> bool:
         "Checks if the instance has config for the given topic"
-        ... # TODO
 
-    def _getConfigForTopic(self, topic: str) -> TimedSchedulerConfiguration:
-        "Returns the configuration to the given topic"
-        ... # TODO
+        return self._getConfigForTopic(topic) is not None
 
     @staticmethod
     def minsToMillisecond(min: float) -> float:
@@ -65,8 +73,11 @@ class MqttBufferingScheduler(ConfiguredScheduler[T_DTO]):
 
     def __addTimerForTopic(self, topic: str, callback: Callable[[T_DTO], Any]) -> None:
         "Setups and adds a named timer to the named timers based on the given arguments"
-        config_for_topic: Final[TimedSchedulerConfiguration] = self._getConfigForTopic(topic)
+        config_for_topic: Final[Optional[TimedSchedulerConfiguration]] = self._getConfigForTopic(topic)
         
+        if config_for_topic is None:
+            raise SchedulerConfigException(f"Missing configuration for {topic}")
+
         named_timer = NamedTimer(
             name = topic,
             timer = Timer(
