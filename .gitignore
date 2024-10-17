@@ -2,4 +2,4 @@ venv
 .env
 __pycache__
 *.log
-esp_config.json
+*.json

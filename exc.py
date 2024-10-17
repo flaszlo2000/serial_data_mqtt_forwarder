@@ -6,17 +6,27 @@ from serial import SerialException
 class IncorrectFallbackTypeException(Exception):
     ...
 
-class MissingConfigurationException(Exception):
+
+class ConfigurationException(Exception):
     ...
+
+class MissingConfigurationException(ConfigurationException):
+    ...
+
+class IncorrectConfigurationException(ConfigurationException):
+    ...
+
 
 class DataForwarderConnectionException(Exception):
     ...
+
 
 class SerialDeviceNotFoundException(FileNotFoundError):
     ...
 
 class IncompatibleSerialDeviceException(SerialException):
     ...
+
 
 class SchedulerConfigException(Exception):
     ...

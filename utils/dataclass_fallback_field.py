@@ -25,10 +25,15 @@ class FallbackFieldMixin:
         #birth_year won't be set and neither a public differing_birth_year will be created
         birth_year: int = field(init = False)
         _differing_birth_year: str = field(default_factory = input, repr = False)   
-    """
+    """ 
+    
+    @property
+    def type_lookup_table(self) -> Dict[Type[Any], Type[Any]]:
+        return dict()
 
-    @staticmethod
-    def _try_to_convert(field_name: str, original_value: Any, type_to_convert: T) -> T:
+    def _try_to_convert(self, field_name: str, original_value: Any, type_to_convert: T) -> T:
+        type_to_convert = cast(T, self.type_lookup_table.get(type_to_convert, type_to_convert))
+
         try:
             converted_value = type_to_convert(original_value)
         except ValueError:

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from configs.esp_config import EspConfig
+from configs.aliases import EspConfig
 from exc import (IncompatibleSerialDeviceException,
                  SerialDeviceNotFoundException)
 

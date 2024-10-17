@@ -4,11 +4,10 @@ from signal import SIGINT, signal
 from threading import Event, Thread
 from typing import Any, Final, NoReturn, Optional
 
-from dotenv import load_dotenv
-
-from configs import Config, MqttConfig, SerialDeviceConfig
-from data_forwarding import (T_DTO, DataForwarderBase, MqttDataForwarder,
-                             MqttDataInputDTO)
+from configs import Config, MqttConfig, SerialDeviceConfig, get_config
+from data_forwarding import (T_DTO, DataForwarderBase, MqttBufferingScheduler,
+                             MqttDataForwarder, MqttDataInputDTO,
+                             SchedulableDataForwarderProxy)
 from exc import DataForwarderConnectionException
 from logging_configurator import setup_logger
 from serial_listener import SerialDeviceHandler
@@ -52,6 +51,22 @@ def connect_data_forwarder(data_forwarder: DataForwarderBase[Any], logger: Logge
 
     logger.info(f"Successfully connected to: {host}")
 
+def setup_data_forwarder(config: Config, logger: Logger) -> DataForwarderBase[Any]:
+    mqtt_config: Final[MqttConfig] = config.getMqttConfig()
+    mqtt_data_forwarder = MqttDataForwarder(mqtt_config, logger) 
+   
+    if config.use_direct_forwarding:
+        return mqtt_data_forwarder
+ 
+
+    configured_scheduler = MqttBufferingScheduler[MqttDataInputDTO](config.getTimedSchedulerConfigs())
+        
+    return SchedulableDataForwarderProxy[MqttDataInputDTO](
+        mqtt_data_forwarder,
+        configured_scheduler,
+        logger
+    )
+
 def main(config: Config, logger: Logger, stop_event: Event) -> None:
     mqtt_config: Final[MqttConfig] = config.getMqttConfig()
     serial_device_config: Final[SerialDeviceConfig] = config.getSerialDeviceConfig()
@@ -63,12 +78,17 @@ def main(config: Config, logger: Logger, stop_event: Event) -> None:
         MqttDataInputDTO.createFromString,
         logger
     )
-    mqtt_data_forwarder = MqttDataForwarder(mqtt_config, logger)
-    connect_data_forwarder(mqtt_data_forwarder, logger, mqtt_config.host)
+
+    data_forwarder: DataForwarderBase[MqttDataInputDTO] = setup_data_forwarder(config, logger)
+    connect_data_forwarder(
+        data_forwarder,
+        logger,
+        mqtt_config.host
+    )
 
     mqtt_handler_thread = Thread(
         target = data_forwarder_thread,
-        args = [mqtt_data_forwarder, message_queue, stop_event, logger]
+        args = [data_forwarder, message_queue, stop_event, logger]
     )
 
     signal(SIGINT, lambda _, __: _graceful_exit(stop_event, mqtt_handler_thread))
@@ -78,9 +98,7 @@ def main(config: Config, logger: Logger, stop_event: Event) -> None:
     mqtt_handler_thread.join()
 
 if __name__ == "__main__":
-    load_dotenv()
-
-    config: Final[Config] = Config()
+    config: Final[Config] = get_config()
     logger: Final[Logger] = setup_logger(config.log_file_path)
     stop_event = Event()
     
