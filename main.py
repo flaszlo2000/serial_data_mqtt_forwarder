@@ -7,9 +7,9 @@ from typing import Any, Final, NoReturn, Optional
 from exc import DataForwarderConnectionException
 from lib.configs import Config, MqttConfig, SerialDeviceConfig, get_config
 from lib.data_forwarding import (T_DTO, DataForwarderBase, MqttDataForwarder,
-                                 MqttDataInputDTO,
-                                 SchedulableDataForwarderProxy)
+                                 MqttDataInputDTO)
 from lib.logging_configurator import setup_logger
+from lib.proxy import SchedulableDataForwarderProxy
 from lib.scheduling import MqttBufferingScheduler
 from lib.serial_handling import SerialDeviceHandler
 
@@ -18,6 +18,7 @@ def _graceful_exit(stop_event: Event, message_forwarder_thread: Thread) -> None:
     "Gracefully stops the program, designed to react to SIGINT"
     stop_event.set()
     message_forwarder_thread.join()
+    # TODO: stop timers
 
 def data_forwarder_thread(
     data_forwarder: DataForwarderBase[T_DTO],

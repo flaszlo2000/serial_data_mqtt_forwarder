@@ -1,7 +1,7 @@
 from logging import Logger
 
-from data_forwarding.data_forwarder_proxy import DataForwarderProxyBase
 from data_forwarding.data_forwarding_base import T_DTO, DataForwarderBase
+from proxy.data_forwarder_proxy import DataForwarderProxyBase
 from scheduling.scheduler_base import ConfiguredScheduler
 
 

@@ -15,6 +15,7 @@ class MqttDataInputDTO: # NOTE: must comply to DataInputDTOProtocol
     destination: str
     data: str
 
+    # FIXME: remove this after retry policy
     retries: int = field(default = 0, repr = False)
     max_retries: int = field(default = 3, repr = False)
 
