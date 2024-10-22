@@ -5,7 +5,7 @@ from queue import Queue
 from threading import Event
 from typing import Callable, Final, Generator, Generic, Optional
 
-from configs import SerialDeviceConfig
+from configs.serial_device_config import SerialDeviceConfig
 from data_forwarding.data_forwarding_base import T_DTO
 from serial import Serial
 

@@ -1,7 +1,7 @@
 from dataclasses import Field, dataclass
 from typing import Any, Dict, Type, TypeVar, cast
 
-from exc import IncorrectFallbackTypeException
+from utils.exc import IncorrectFallbackTypeException
 
 T = TypeVar("T", bound = Type[Any])
 

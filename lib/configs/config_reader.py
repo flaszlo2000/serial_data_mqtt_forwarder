@@ -3,8 +3,8 @@ from json import load as json_load
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from configs import Config
-from exc import IncorrectConfigurationException
+from configs.config import Config
+from configs.exc import IncorrectConfigurationException
 
 
 def read_config(config_path: Path) -> Dict[str, Any]:

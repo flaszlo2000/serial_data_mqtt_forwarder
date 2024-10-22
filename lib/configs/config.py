@@ -3,9 +3,10 @@ from pathlib import Path
 from typing import Collection, Iterable, List, NoReturn, Optional
 
 from configs.aliases import EspConfig, TimedSchedulerConfigs
+from configs.exc import (IncorrectConfigurationException,
+                         MissingConfigurationException)
 from configs.mqtt_config import MqttConfig
 from configs.serial_device_config import SerialDeviceConfig
-from exc import IncorrectConfigurationException, MissingConfigurationException
 from scheduling.scheduler_configuration import TimedSchedulerConfiguration
 from utils.dataclass_fallback_field import FallbackFieldMixin
 
