@@ -1,4 +1,4 @@
-from data_forwarding.data_forwarding import T_DTO, DataForwarderBase
+from data_forwarding.data_forwarding_base import T_DTO, DataForwarderBase
 
 
 class DataForwarderProxyBase(DataForwarderBase[T_DTO]):

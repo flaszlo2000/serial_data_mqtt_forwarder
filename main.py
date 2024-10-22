@@ -4,13 +4,14 @@ from signal import SIGINT, signal
 from threading import Event, Thread
 from typing import Any, Final, NoReturn, Optional
 
-from configs import Config, MqttConfig, SerialDeviceConfig, get_config
-from data_forwarding import (T_DTO, DataForwarderBase, MqttBufferingScheduler,
-                             MqttDataForwarder, MqttDataInputDTO,
-                             SchedulableDataForwarderProxy)
-from exc import DataForwarderConnectionException
-from logging_configurator import setup_logger
-from serial_listener import SerialDeviceHandler
+from lib.configs import Config, MqttConfig, SerialDeviceConfig, get_config
+from lib.data_forwarding import (T_DTO, DataForwarderBase, MqttDataForwarder,
+                                 MqttDataInputDTO,
+                                 SchedulableDataForwarderProxy)
+from lib.exc import DataForwarderConnectionException
+from lib.logging_configurator import setup_logger
+from lib.scheduling.buffering_scheduler import MqttBufferingScheduler
+from lib.serial_listener import SerialDeviceHandler
 
 
 def _graceful_exit(stop_event: Event, message_forwarder_thread: Thread) -> None:

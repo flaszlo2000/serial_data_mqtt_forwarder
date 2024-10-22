@@ -4,11 +4,10 @@ from json import loads as json_loads
 from logging import Logger
 from typing import Any, Dict, Final, Optional
 
+from configs.mqtt_config import MqttConfig
+from data_forwarding.data_forwarding_base import DataForwarderBase
 from paho.mqtt.client import Client
 from paho.mqtt.enums import CallbackAPIVersion, MQTTErrorCode
-
-from configs.mqtt_config import MqttConfig
-from data_forwarding.data_forwarding import DataForwarderBase
 
 
 @dataclass

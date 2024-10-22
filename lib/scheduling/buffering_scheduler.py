@@ -2,10 +2,9 @@ from dataclasses import dataclass
 from threading import Timer
 from typing import Any, Callable, Dict, Final, Iterable, List, Optional, cast
 
-from data_forwarding.data_forwarding import T_DTO
-from data_forwarding.scheduling import (ConfiguredScheduler,
-                                        TimedSchedulerConfiguration)
+from data_forwarding.data_forwarding_base import T_DTO
 from exc import SchedulerConfigException
+from scheduling import ConfiguredScheduler, TimedSchedulerConfiguration
 
 
 @dataclass

@@ -1,7 +1,7 @@
 from logging import Logger
 
 from data_forwarding import T_DTO, DataForwarderBase, DataForwarderProxyBase
-from data_forwarding.scheduling.forwarding_scheduler import ConfiguredScheduler
+from scheduling.scheduler_base import ConfiguredScheduler
 
 
 class SchedulableDataForwarderProxy(DataForwarderProxyBase[T_DTO]):

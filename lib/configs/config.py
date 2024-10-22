@@ -5,9 +5,8 @@ from typing import Collection, Iterable, List, NoReturn, Optional
 from configs.aliases import EspConfig, TimedSchedulerConfigs
 from configs.mqtt_config import MqttConfig
 from configs.serial_device_config import SerialDeviceConfig
-from data_forwarding.scheduling.scheduler_configuration import \
-    TimedSchedulerConfiguration
 from exc import IncorrectConfigurationException, MissingConfigurationException
+from scheduling.scheduler_configuration import TimedSchedulerConfiguration
 from utils.dataclass_fallback_field import FallbackFieldMixin
 
 

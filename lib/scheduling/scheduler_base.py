@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Final, Generic, Iterable, TypeVar
 
-from data_forwarding.scheduling.scheduler_configuration import \
-    SchedulerConfiguration
+from scheduling.scheduler_configuration import SchedulerConfiguration
 
 T = TypeVar("T")
 class Scheduler(ABC, Generic[T]):
