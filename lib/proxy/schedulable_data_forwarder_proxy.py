@@ -1,8 +1,10 @@
 from logging import Logger
+from typing import Optional, overload
 
 from data_forwarding.data_forwarding_base import T_DTO, DataForwarderBase
 from proxy.data_forwarder_proxy import DataForwarderProxyBase
 from scheduling.scheduler_base import ConfiguredScheduler
+from utils.policies import RetryPolicy
 
 
 class SchedulableDataForwarderProxy(DataForwarderProxyBase[T_DTO]):
@@ -39,5 +41,10 @@ class SchedulableDataForwarderProxy(DataForwarderProxyBase[T_DTO]):
     def connect(self) -> bool:
         return self.data_forwarder.connect()
 
-    def retySend(self, data_dto: T_DTO) -> None:
+    @overload
+    def retySend(self, data_dto: T_DTO) -> None:...
+    @overload
+    def retySend(self, data_dto: T_DTO, retry_strategy: RetryPolicy) -> None:...
+
+    def retySend(self, data_dto: T_DTO, retry_strategy: Optional[RetryPolicy] = None) -> None:
         pass # intentionally left empty, real retrySend calls will be handled in the data_forwarder

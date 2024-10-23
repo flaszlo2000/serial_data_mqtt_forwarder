@@ -12,7 +12,7 @@ class SerialDeviceConfig:
     config: EspConfig
     baud_rate: int
 
-    def __post_init__(self) -> None:
+    def checkDevie(self) -> None:
         if not self.device_path.exists():
             raise SerialDeviceNotFoundException(f"{self.device_path} does not exist!")
         

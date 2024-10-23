@@ -1,15 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import Generic, Protocol, TypeVar
+from typing import Generic, Optional, Protocol, TypeVar, overload
+
+from utils.policies import RetryPolicy
 
 
 class DataInputDTOProtocol(Protocol):
     destination: str
 
-    retries: int
-    max_retries: int
-
-    def increaseRetries(self, amount: int = 1) -> None:
-        ...
 
 T_DTO = TypeVar("T_DTO", bound = DataInputDTOProtocol)
 class DataForwarderBase(Generic[T_DTO], ABC):
@@ -21,7 +18,13 @@ class DataForwarderBase(Generic[T_DTO], ABC):
     def send(self, data_dto: T_DTO) -> bool:
         ...
 
+
+    @overload
     @abstractmethod
-    def retySend(self, data_dto: T_DTO) -> None:
-        "Uses proper retry policy to try and send the data"
-        ...
+    def retySend(self, data_dto: T_DTO) -> None:...
+    @overload
+    @abstractmethod
+    def retySend(self, data_dto: T_DTO, retry_strategy: RetryPolicy) -> None:...
+
+    @abstractmethod
+    def retySend(self, data_dto: T_DTO, retry_strategy: Optional[RetryPolicy] = None) -> None:...

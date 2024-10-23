@@ -1,7 +1,7 @@
 from functools import lru_cache
 from json import load as json_load
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, overload
 
 from configs.config import Config
 from configs.exc import IncorrectConfigurationException
@@ -14,6 +14,16 @@ def read_config(config_path: Path) -> Dict[str, Any]:
 
     with open(config_path, "r") as config_file:
         return json_load(config_file)
+
+
+@overload
+def get_config() -> Config:
+    "Reads and returns the config"
+    ...
+@overload
+def get_config(config_path: Path) -> Config:
+    "Reads and returns the config"
+    ...
 
 @lru_cache
 def get_config(config_path: Optional[Path] = None) -> Config:

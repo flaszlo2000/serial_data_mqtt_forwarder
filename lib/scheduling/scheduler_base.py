@@ -1,10 +1,17 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Final, Generic, Iterable, TypeVar
+from typing import Any, Callable, Final, Generic, Iterable, TypeVar, overload
 
 from scheduling.scheduler_configuration import SchedulerConfiguration
 
 T = TypeVar("T")
 class Scheduler(ABC, Generic[T]):
+    @overload
+    @abstractmethod
+    def schedule(self, data: Any, callback: Callable[[T], Any]) -> None:...
+    @overload
+    @abstractmethod
+    def schedule(self, data: Any, callback: Callable[[T], Any], *, send_first_value: bool = True) -> None:...
+
     @abstractmethod
     def schedule(self, data: Any, callback: Callable[[T], Any], *, send_first_value: bool = True) -> None:
         ...

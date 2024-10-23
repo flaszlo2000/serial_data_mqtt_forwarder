@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from threading import Timer
-from typing import Any, Callable, Dict, Final, Iterable, List, Optional, cast
+from typing import (Any, Callable, Dict, Final, Iterable, List, Optional, cast,
+                    overload)
 
 from data_forwarding.data_forwarding_base import T_DTO
 from scheduling.exc import SchedulerConfigException
@@ -15,6 +16,12 @@ class NamedTimer:
 
 class MqttBufferingScheduler(ConfiguredScheduler[T_DTO]):
     """""" # TODO
+
+    @overload
+    def __init__(self, configs: Iterable[TimedSchedulerConfiguration]) -> None:...
+    @overload
+    def __init__(self, configs: Iterable[TimedSchedulerConfiguration], data_buffer: Dict[str, T_DTO]) -> None:...
+
     def __init__(self, configs: Iterable[TimedSchedulerConfiguration], data_buffer: Optional[Dict[str, T_DTO]] = None) -> None:
         super().__init__(configs)
 
@@ -96,6 +103,12 @@ class MqttBufferingScheduler(ConfiguredScheduler[T_DTO]):
         # for instance: saving the last state, collecting all datas that the sensor sent and send it in bulk, etc.
 
         self.__topic_data_buffer[data.destination] = data
+
+
+    @overload
+    def schedule(self, data: T_DTO, callback: Callable[[T_DTO], Any]) -> None:...
+    @overload
+    def schedule(self, data: T_DTO, callback: Callable[[T_DTO], Any], *, send_first_value: bool = True) -> None:...
 
     def schedule(self, data: T_DTO, callback: Callable[[T_DTO], Any], *, send_first_value: bool = True) -> None:
         "Schedules a callback with the given data"

@@ -1,26 +1,23 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from json import JSONDecodeError
 from json import loads as json_loads
 from logging import Logger
-from typing import Any, Dict, Final, Optional
+from threading import Event
+from typing import Any, Dict, Final, Optional, overload
 
 from configs.mqtt_config import MqttConfig
 from data_forwarding.data_forwarding_base import DataForwarderBase
+from data_forwarding.exc import SendingUnsuccessfulException
 from paho.mqtt.client import Client
 from paho.mqtt.enums import CallbackAPIVersion, MQTTErrorCode
+from utils.policies import RetryPolicy
+from utils.retry_policy import RetryWithPow2DelayPolicy
 
 
 @dataclass
 class MqttDataInputDTO: # NOTE: must comply to DataInputDTOProtocol
     destination: str
     data: str
-
-    # FIXME: remove this after retry policy
-    retries: int = field(default = 0, repr = False)
-    max_retries: int = field(default = 3, repr = False)
-
-    def increaseRetries(self, amount: int = 1) -> None:
-        self.retries += amount
 
     @classmethod
     def createFromString(cls, _input: str, logger: Logger) -> "Optional[MqttDataInputDTO]":
@@ -36,8 +33,9 @@ class MqttDataInputDTO: # NOTE: must comply to DataInputDTOProtocol
         return result
 
 class MqttDataForwarder(DataForwarderBase[MqttDataInputDTO]):
-    def __init__(self, mqtt_config: MqttConfig, logger: Logger) -> None:
+    def __init__(self, mqtt_config: MqttConfig, stop_event: Event, logger: Logger) -> None:
         self.__mqtt_config: Final[MqttConfig] = mqtt_config
+        self.stop_event = stop_event
         self.logger = logger
 
         self._mqtt_client = Client(CallbackAPIVersion.VERSION2)
@@ -68,16 +66,33 @@ class MqttDataForwarder(DataForwarderBase[MqttDataInputDTO]):
 
         return result.is_published()
 
-    def retySend(self, data_dto: MqttDataInputDTO) -> None:
-        # TODO
 
-        # if message.retries < message.max_retries:
-        #     msg_queue.put(message) # TODO: use proper retry policy
-        #     message.increaseRetries()
+    @overload
+    def retySend(self, data_dto: MqttDataInputDTO) -> None:...
+    @overload
+    def retySend(self, data_dto: MqttDataInputDTO, retry_strategy: RetryPolicy) -> None:...
+    
+    def retySend(self, data_dto: MqttDataInputDTO, retry_strategy: Optional[RetryPolicy] = None) -> None:
+        "Tries to resend the given data_dto with the given retry strategy (thats is optional and fallbacks to pow2 delayed strategy)"
+        def sending_that_raises() -> bool:
+            # Inner function that tries to send the data vut raises exception if it was unsuccessful
+            result = self._mqtt_client.publish(data_dto.destination, data_dto.data)
 
-        #     continue
-        
-        # if message.retries >= message.max_retries:
-        #     logger.error(f"Message ({message}) couldn't be sent, dropping")
+            if not result.is_published():
+                self.logger.warning(f"Message forwarding retry failed with: {result.rc}")
+                raise SendingUnsuccessfulException()
+            
+            return result.is_published()
 
-        ...
+        retry_strategy = retry_strategy or RetryWithPow2DelayPolicy()
+
+        result = retry_strategy.retry(
+            sending_that_raises,
+            self.stop_event,
+            [SendingUnsuccessfulException],
+
+            fail_message = "Wasn't able to forward the message, even after repeated jittered retrying."
+        )
+
+        assert result is not None
+        self.logger.info("Retry policy successfully forwarded the message")

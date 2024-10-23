@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, Final, Optional
+from typing import Dict, Final, Optional, overload
 
 
 @dataclass
@@ -11,6 +11,12 @@ class NamedLoggingHandler:
 
     def __hash__(self) -> int:
         return id(self) # memory adrress for hash, fnv for the weak, yolo 
+
+
+@overload
+def get_configured_logger(out_file_path: Path) -> logging.Logger:...
+@overload
+def get_configured_logger(out_file_path: Path, logger_name: str = __name__) -> logging.Logger:...
 
 def get_configured_logger(out_file_path: Path, logger_name: str = __name__) -> logging.Logger:
     "Creates and configures a new logger"
@@ -34,6 +40,12 @@ def get_configured_logger(out_file_path: Path, logger_name: str = __name__) -> l
         logger.addHandler(handler_config.handler)
 
     return logger
+
+
+@overload
+def setup_logger() -> logging.Logger:...
+@overload
+def setup_logger(out_file_path: Path) -> logging.Logger:...
 
 def setup_logger(out_file_path: Optional[Path] = None) -> logging.Logger:
     "Setups a logger with an output file"
